@@ -13,11 +13,10 @@ def getConfigurations(resource):
   return resource['configurations']
 
 def filterConfigurationsPerKind(configurations,kind):
-  filteredConfigurations = []
-  for configuration in configurations:
-    if configuration["kind"] == kind:
-      filteredConfigurations.append(configuration)
-  return filteredConfigurations
+  return [
+      configuration for configuration in configurations
+      if configuration["kind"] == kind
+  ]
 
 def loadYaml(input):
   return yaml.full_load(input)
@@ -37,8 +36,7 @@ def loadYamlFile(path):
 # Loads Yam File without inserting the include files inside configurations
 def loadRawYamlFile(path):
   file = open(path)
-  yamlFile = loadYaml(file)
-  return yamlFile
+  return loadYaml(file)
 
 def prometheusTime2Minutes(prometheusTime):
   prometheusNumber = int(prometheusTime[:-1])
@@ -49,8 +47,7 @@ def prometheusTime2Minutes(prometheusTime):
   return round(prometheusNumber * timeConversions[prometheusUnit])
 
 def prometheusAlert2SysdigAlert(promAlert):
-  sysdigAlert = {}
-  sysdigAlert['alert'] = {}
+  sysdigAlert = {'alert': {}}
   sysdigAlert['alert']['condition'] = promAlert['expr']
   sysdigAlert['alert']['customNotification'] = {}
   sysdigAlert['alert']['customNotification']['titleTemplate'] = "{{__alert_name__}} is {{__alert_status__}}"
@@ -81,13 +78,13 @@ def removeTrailingSpaces(data):
 def removeTrailingSpacesFromAllElements(data):
   if type(data) == dict: 
     for element in data:  
-      if type(data[element]) == dict or type(data[element]) == list:
+      if type(data[element]) in [dict, list]:
         data[element] = removeTrailingSpacesFromAllElements(data[element])
       elif type(data[element]) == str: 
         data[element] = removeTrailingSpaces(data[element])
   if type(data) == list:
     for idx in range(len(data)):
-      if type(data[idx]) == dict or type(data[idx]) == list:
+      if type(data[idx]) in [dict, list]:
         data[idx] = removeTrailingSpacesFromAllElements(data[idx])
       elif type(data[idx]) == str: 
         data[idx] = removeTrailingSpaces(data[idx])
@@ -115,8 +112,6 @@ def createArrayOfSysdigAlerts(alertsYaml):
 def sysdigAlerts2PromcatConfigurations(sysdigAlerts):
   promcatAlerts = []
   for sysdigAlert in sysdigAlerts:
-    promcatAlert = {}
-    promcatAlert["kind"] = "Sysdig"
-    promcatAlert["data"] = dict2BeautyString(sysdigAlert)
+    promcatAlert = {"kind": "Sysdig", "data": dict2BeautyString(sysdigAlert)}
     promcatAlerts.append(promcatAlert)
   return(promcatAlerts)

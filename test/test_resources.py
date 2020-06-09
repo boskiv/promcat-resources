@@ -45,20 +45,21 @@ def loadYaml(input):
 @pytest.fixture(scope="session", autouse=True)
 def loadResources():
   for root, dirs, files in os.walk('apps'):
-     for file in files:
-       if file.endswith(".yaml"):
-          with open(os.path.join(root, file), "r") as appFile:
-            try:
-              appYaml = loadYaml(appFile)
-              if appYaml["available"] == True:
-                apps_names.append(appYaml["name"])
-                apps_versions[appYaml["name"]] = []
-                for availableVersion in appYaml["availableVersions"]:
-                  apps_versions[appYaml["name"]].append(str(availableVersion))
-            except:
-              print("*** Error loading file: " + os.path.join(root, file))
-              exit(1)
-              
+    for file in files:
+      if file.endswith(".yaml"):
+        with open(os.path.join(root, file), "r") as appFile:
+          try:
+            appYaml = loadYaml(appFile)
+            if appYaml["available"] == True:
+              apps_names.append(appYaml["name"])
+              apps_versions[appYaml["name"]] = [
+                  str(availableVersion)
+                  for availableVersion in appYaml["availableVersions"]
+              ]
+          except:
+            print("*** Error loading file: " + os.path.join(root, file))
+            exit(1)
+
   for root, dirs, files in os.walk('resources'):
     for file in files:
       if file.endswith(".yaml") and "/include/" not in os.path.join(root, file):
@@ -84,10 +85,11 @@ def loadResources():
 # General tests
 # Checks that a resource name does not exists in a list
 def checkDuplicatedResourceInApp(res,names):
-  if (not res['app'] in names):
-    names[res["app"]] = []    
+  if res['app'] not in names:
+    names[res["app"]] = []
   for appVersion in res["appVersion"]:
-    assert (res['app'] != "") and (type(res['app']) == str) and (not appVersion in names[res['app']])
+    assert (res['app'] != "" and type(res['app']) == str
+            and appVersion not in names[res['app']])
     names[res['app']].append(str(appVersion))
   
 
@@ -113,7 +115,7 @@ def checkValidSysdigDashboard(element):
     print('*** Sysdig dashboard must have an unique root element "dashboard"')
     return False
   for key in dashboard["dashboard"].keys():
-    if (not key in sysdig_dashboard_keys_level_1):
+    if key not in sysdig_dashboard_keys_level_1:
       print('*** Key not supported in Sysdig dashboard: ' + key)
       return False
   return True
@@ -218,8 +220,7 @@ def testDescriptionElement():
           and ('description' in res))
         checkStringNotEmpty(res, res['description'])
       else:
-        assert ((res['app'] != "") and (res['kind'] != "") \
-          and (not 'description' in res))
+        assert res['app'] != "" and res['kind'] != "" and 'description' not in res
       
 # Tests for data elements
 # For the resources with data
@@ -232,8 +233,7 @@ def testDataElement():
           and ('data' in res))
         checkStringNotEmpty(res, res['data'])
       else:
-        assert ((res['app'] != "") and (res['kind'] != "") \
-          and (not 'data' in res))
+        assert res['app'] != "" and res['kind'] != "" and 'data' not in res
 
 
 # Tests for configurations elements
@@ -249,8 +249,7 @@ def testConfigurationsElement():
         for config in res['configurations']:
           checkStringNotEmpty(res, config['data'])
       else:
-        assert ((res['app'] != "") and (res['kind'] != "") \
-          and (not 'configurations' in res))
+        assert res['app'] != "" and res['kind'] != "" and 'configurations' not in res
 
 # Test in dashboards:
 # - in configurations: 
@@ -266,8 +265,8 @@ def testDashboards():
     for config in res['configurations']:
       checkStringNotEmpty(res,config['name'])
       checkStringNotEmpty(res,config['kind'])
-      assert ((res['app'] != "") and (res['kind'] != "") \
-        and ((config['kind'] == 'Grafana') or (config['kind'] == 'Sysdig')))
+      assert (res['app'] != "" and res['kind'] != ""
+              and config['kind'] in ['Grafana', 'Sysdig'])
       checkStringNotEmpty(res,config['image'])
       checkFileExists(res, 'resources/' + config['image'])
       checkStringNotEmpty(res,config['description'])
@@ -290,8 +289,8 @@ def testAlerts():
   for res in alerts:
     for config in res['configurations']:
       checkStringNotEmpty(res,config['kind'])
-      assert ((res['app'] != "") and (res['kind'] != "") \
-        and ((config['kind'] == 'Prometheus') or (config['kind'] == 'Sysdig')))
+      assert (res['app'] != "" and res['kind'] != ""
+              and config['kind'] in ['Prometheus', 'Sysdig'])
       checkStringNotEmpty(res,config['data'])
       if (config['kind'] == 'Sysdig'):
         assert ((res['app'] != "") and (config['kind'] != "") \
