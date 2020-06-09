@@ -23,16 +23,14 @@ except BaseException as exception:
 
 yamlFile = pypromcat.loadYamlFile(args.file)
 yamlFile["configurations"] = []
-configuration = {}
-configuration["kind"] = "Prometheus"
-configuration["data"] = yamlFile["data"]
+configuration = {"kind": "Prometheus", "data": yamlFile["data"]}
 yamlFile["configurations"].append(configuration)
 del yamlFile["data"]
 
 outputformatted = pypromcat.dict2BeautyYaml(yamlFile)
-if (args.outputFile == None):
-  print(outputformatted)
+if args.outputFile is None:
+    print(outputformatted)
 else:
-  f = open(args.outputFile, "w")
-  f.write(outputformatted)
-  f.close()
+    f = open(args.outputFile, "w")
+    f.write(outputformatted)
+    f.close()

@@ -25,7 +25,7 @@ def loadApps():
 def testDuplicatedApp(): 
   for app in apps:
     assert (app['name'] != "") and (type(app['description']) == str)
-    assert (app['name'] != "") and (not app['name']  in apps_names)
+    assert not (app['name'] == "" or app['name']  in apps_names)
     apps_names.append(app['name'])
 
 def testVersion(): 
@@ -41,12 +41,12 @@ def testKind():
 def testDescription(): 
   for app in apps:
     assert (app['name'] != "") and (type(app['description']) == str)
-    assert (app['name'] != "") and (app['description'] != "")
+    assert not (app['name'] == "" or app['description'] == "")
 
 def testIcon(): 
   for app in apps:
     assert (app['name'] != "") and (type(app['description']) == str)
-    assert (app['name'] != "") and (app['description'] != "")
+    assert not (app['name'] == "" or app['description'] == "")
     
 def testKeywords(): 
   for app in apps:

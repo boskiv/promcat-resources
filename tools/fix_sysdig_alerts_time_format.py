@@ -31,19 +31,22 @@ if yamlFile["kind"] != "Alert":
 changed = False
 
 for alert in yamlFile["configurations"]:
-  if alert["kind"] == "Sysdig":
-    sysdigAlert = json.loads(alert["data"])
-    if type(sysdigAlert["alert"]["reNotifyMinutes"]) == str:
-      if sysdigAlert["alert"]["reNotifyMinutes"][-1] in pypromcat.timeConversions:
-        sysdigAlert["alert"]["reNotifyMinutes"] = pypromcat.prometheusTime2Minutes(sysdigAlert["alert"]["reNotifyMinutes"])
-        alert["data"] = pypromcat.dict2BeautyString(sysdigAlert)
-        changed = True
-  
-if changed == True:
-  outputformatted = pypromcat.dict2BeautyYaml(yamlFile)
-  if (args.outputFile == None):
-    print(outputformatted)
-  else:
-    f = open(args.outputFile, "w")
-    f.write(outputformatted)
-    f.close()
+    if alert["kind"] == "Sysdig":
+        sysdigAlert = json.loads(alert["data"])
+        if (
+            type(sysdigAlert["alert"]["reNotifyMinutes"]) == str
+            and sysdigAlert["alert"]["reNotifyMinutes"][-1]
+            in pypromcat.timeConversions
+        ):
+            sysdigAlert["alert"]["reNotifyMinutes"] = pypromcat.prometheusTime2Minutes(sysdigAlert["alert"]["reNotifyMinutes"])
+            alert["data"] = pypromcat.dict2BeautyString(sysdigAlert)
+            changed = True
+
+if changed:
+    outputformatted = pypromcat.dict2BeautyYaml(yamlFile)
+    if args.outputFile is None:
+        print(outputformatted)
+    else:
+        f = open(args.outputFile, "w")
+        f.write(outputformatted)
+        f.close()

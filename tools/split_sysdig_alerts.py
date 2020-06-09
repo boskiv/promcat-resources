@@ -22,10 +22,10 @@ except BaseException as exception:
 
 sysdigAlertsArray = pypromcat.createArrayOfSysdigAlerts(args.file)
 promcatAlerts = pypromcat.sysdigAlerts2PromcatConfigurations(sysdigAlertsArray)
-outputformatted = pypromcat.dict2BeautyYaml(promcatAlerts) 
-if (args.outputFile == None):
-  print(outputformatted)
+outputformatted = pypromcat.dict2BeautyYaml(promcatAlerts)
+if args.outputFile is None:
+    print(outputformatted)
 else:
-  f = open(args.outputFile, "a")
-  f.write(outputformatted)
-  f.close()
+    f = open(args.outputFile, "a")
+    f.write(outputformatted)
+    f.close()

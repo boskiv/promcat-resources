@@ -35,7 +35,7 @@ for sysdigAlert in sysdigAlertsArray:
 yamlFile["configurations"] = newConfigurations
 
 newDescription = ""
-newDescription = newDescription + "# Alerts\n"
+newDescription += "# Alerts\n"
 
 for prometheusAlertElement in prometheusAlerts:
   prometheusAlertsYaml = pypromcat.loadYaml(prometheusAlertElement["data"])
@@ -66,14 +66,14 @@ groups:
 ## In Sysdig Monitor
 To install these alerts in Sysdig Monitor, contact with the support service. 
 """
-newDescription = newDescription + installInstructions
+newDescription += installInstructions
 
 yamlFile["description"] = newDescription
 
 outputformatted = pypromcat.dict2BeautyYaml(yamlFile)
-if (args.outputFile == None):
-  print(outputformatted)
+if args.outputFile is None:
+    print(outputformatted)
 else:
-  f = open(args.outputFile, "w")
-  f.write(outputformatted)
-  f.close()
+    f = open(args.outputFile, "w")
+    f.write(outputformatted)
+    f.close()
